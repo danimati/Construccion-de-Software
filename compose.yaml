@@ -1,0 +1,43 @@
+# Por defecto levanta la demostración con datos ficticios y claves conocidas.
+# Para otro uso: definir NOVAKEY_PERFIL=prod, NOVAKEY_DB_CLAVE, NOVAKEY_JWT_SECRETO y NOVAKEY_ADMIN_CLAVE.
+name: novakey
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: novakey
+      POSTGRES_USER: novakey
+      POSTGRES_PASSWORD: ${NOVAKEY_DB_CLAVE:-novakey}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U novakey -d novakey"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./novakey-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${NOVAKEY_PERFIL:-demo}
+      NOVAKEY_DB_URL: jdbc:postgresql://db:5432/novakey
+      NOVAKEY_DB_USUARIO: novakey
+      NOVAKEY_DB_CLAVE: ${NOVAKEY_DB_CLAVE:-novakey}
+      NOVAKEY_JWT_SECRETO: ${NOVAKEY_JWT_SECRETO:-secreto-solo-para-demostracion-no-usar-en-produccion}
+      NOVAKEY_ADMIN_CLAVE: ${NOVAKEY_ADMIN_CLAVE:-}
+
+  web:
+    build: ./novakey-erp
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8088:80"
+
+volumes:
+  datos:
