@@ -17,7 +17,8 @@ Esta carpeta reemplazará a `../novakey-erp` una vez completada la reescritura.
 | **Shell** con barra lateral por permisos y **Panel general** | ✅ |
 | Pantalla de **Inventario** (materiales y productos) | ✅ |
 | Pantalla de **Compras** (proveedores, órdenes, cuentas por pagar) | ✅ |
-| Ventas · Producción · RR. HH. · Accesos | ⏳ pantallas por reconstruir |
+| Pantalla de **Ventas** (cotizaciones, pedidos, facturas) | ✅ |
+| Producción · RR. HH. · Accesos | ⏳ pantallas por reconstruir |
 
 ## Ejecutar
 

@@ -22,10 +22,12 @@ async def ciclo_vida(app: FastAPI):
             from novakey.compras.demo import sembrar_si_vacio as sembrar_compras
             from novakey.iam.demo import sembrar_si_vacio as sembrar_iam
             from novakey.inventario.demo import sembrar_si_vacio as sembrar_inventario
+            from novakey.ventas.demo import sembrar_si_vacio as sembrar_ventas
 
             sembrar_iam(sesion)
             sembrar_inventario(sesion)
             sembrar_compras(sesion)
+            sembrar_ventas(sesion)
             sesion.commit()
     yield
 
@@ -60,6 +62,11 @@ def crear_app() -> FastAPI:
     from novakey.compras.api import router as compras_router
 
     app.include_router(compras_router, prefix="/api")
+
+    # RF04 · Ventas
+    from novakey.ventas.api import router as ventas_router
+
+    app.include_router(ventas_router, prefix="/api")
 
     # Router de demostración solo con el perfil demo.
     if settings.perfil == "demo":
