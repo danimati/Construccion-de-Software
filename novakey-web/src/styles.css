@@ -86,7 +86,30 @@ th.der { text-align: right; }
 }
 
 .lista { list-style: none; margin: 0; padding: 0; }
-.lista li { padding: 9px 0; border-top: 1px solid var(--linea-suave); }
+.lista li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--linea-suave); }
+.fila-sel { background: var(--neutro-fondo); }
+
+/* Botones agrupados y controles pequeños */
+.grupo-btn { display: inline-flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.control-chico { min-height: 36px; padding: 0 8px; font-size: 13px; border: 1px solid var(--borde-control); border-radius: 6px; background: var(--superficie); color: var(--texto); font-family: inherit; }
+
+/* Formularios en modal */
+.form { display: flex; flex-direction: column; gap: 14px; }
+.form-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.form-pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+
+/* Estaciones de producción */
+.estaciones { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.estacion { background: var(--neutro-fondo); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.estacion-nombre { font-weight: 500; min-height: 34px; }
+.barra { display: block; height: 8px; background: var(--linea-suave); border-radius: 4px; overflow: hidden; }
+.barra > span { display: block; height: 100%; border-radius: 4px; background: var(--acento); }
+
+/* Modal */
+dialog { border: 1px solid var(--linea); border-radius: 10px; padding: 0; width: min(640px, calc(100vw - 32px)); color: var(--texto); }
+dialog::backdrop { background: rgb(11 46 84 / 45%); }
+.modal-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--linea-suave); }
+.modal-cuerpo { padding: 18px 20px 20px; }
 
 /* Indicadores */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
