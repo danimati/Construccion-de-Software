@@ -12,11 +12,13 @@ RUN pip install --no-cache-dir .
 
 COPY novakey ./novakey
 COPY migrations ./migrations
-COPY alembic.ini ./
+COPY alembic.ini entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
 # Usuario sin privilegios.
 RUN useradd --create-home novakey
 USER novakey
 
 EXPOSE 8080
-CMD ["uvicorn", "novakey.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# El arranque aplica las migraciones (alembic upgrade head) antes de lanzar Uvicorn.
+ENTRYPOINT ["./entrypoint.sh"]
