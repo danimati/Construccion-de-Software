@@ -10,6 +10,7 @@ from novakey.db import Base
 
 # Importar aquí los modelos de cada módulo para que Alembic los vea en autogenerate.
 from novakey.iam import modelo  # noqa: F401
+from novakey.inventario import modelo as _inv_modelo  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().db_url)

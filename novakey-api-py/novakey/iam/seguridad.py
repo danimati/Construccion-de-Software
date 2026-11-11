@@ -56,10 +56,25 @@ def exige(codigo: str):
     modulo, nivel = codigo.split(":")
 
     def verificar(usuario: UsuarioActual) -> Usuario:
-        codigos = usuario.codigos_permiso()
-        permitido = codigo in codigos or (nivel == "ver" and f"{modulo}:editar" in codigos)
-        if not permitido:
+        if not _tiene(usuario, codigo):
             raise Prohibido("No tienes permiso para esta operación.")
         return usuario
 
     return verificar
+
+
+def exige_alguno(*codigos: str):
+    """Crea una dependencia que exige al menos uno de los permisos indicados."""
+
+    def verificar(usuario: UsuarioActual) -> Usuario:
+        if not any(_tiene(usuario, c) for c in codigos):
+            raise Prohibido("No tienes permiso para esta operación.")
+        return usuario
+
+    return verificar
+
+
+def _tiene(usuario: Usuario, codigo: str) -> bool:
+    modulo, nivel = codigo.split(":")
+    codigos = usuario.codigos_permiso()
+    return codigo in codigos or (nivel == "ver" and f"{modulo}:editar" in codigos)
