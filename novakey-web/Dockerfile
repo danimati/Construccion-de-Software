@@ -8,8 +8,9 @@ RUN npm run build
 
 FROM nginx:1.29-alpine
 # Certificado autofirmado para la demostración (HTTPS). En producción se montan certificados
-# reales en /etc/nginx/certs. openssl viene en la imagen base de nginx:alpine.
-RUN mkdir -p /etc/nginx/certs && \
+# reales en /etc/nginx/certs. openssl no viene en nginx:alpine, así que se instala primero.
+RUN apk add --no-cache openssl && \
+    mkdir -p /etc/nginx/certs && \
     openssl req -x509 -nodes -days 825 -newkey rsa:2048 \
         -keyout /etc/nginx/certs/novakey.key \
         -out /etc/nginx/certs/novakey.crt \
