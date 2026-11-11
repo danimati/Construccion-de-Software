@@ -1,10 +1,29 @@
 """Punto de entrada de la API. Ensambla el monolito modular montando el router de cada módulo."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from novakey import __version__
 from novakey.config import get_settings
+from novakey.db import SessionLocal
 from novakey.errores import registrar_manejadores
+
+
+@asynccontextmanager
+async def ciclo_vida(app: FastAPI):
+    """Al arrancar: crea el admin inicial y, en perfil demo, siembra datos de ejemplo."""
+    settings = get_settings()
+    from novakey.iam.arranque import crear_admin_inicial
+
+    with SessionLocal() as sesion:
+        crear_admin_inicial(sesion)
+        if settings.perfil == "demo":
+            from novakey.iam.demo import sembrar_si_vacio
+
+            sembrar_si_vacio(sesion)
+            sesion.commit()
+    yield
 
 
 def crear_app() -> FastAPI:
@@ -14,6 +33,7 @@ def crear_app() -> FastAPI:
         title="NovaKey ERP API",
         version=__version__,
         description="Monolito modular del ERP NovaKey: IAM, Inventario, Compras, Ventas y RH.",
+        lifespan=ciclo_vida,
     )
 
     registrar_manejadores(app)
@@ -22,11 +42,17 @@ def crear_app() -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "UP"}
 
-    # Los módulos se registran aquí a medida que se implementan (RF01..RF06).
-    # from novakey.iam.api import router as iam_router
-    # app.include_router(iam_router, prefix="/api")
+    # RF01 · IAM
+    from novakey.iam.api import router as iam_router
 
-    _ = settings  # se usará para activar el perfil demo cuando existan los módulos
+    app.include_router(iam_router, prefix="/api")
+
+    # Router de demostración solo con el perfil demo.
+    if settings.perfil == "demo":
+        from novakey.iam.demo import router as demo_router
+
+        app.include_router(demo_router, prefix="/api")
+
     return app
 
 
