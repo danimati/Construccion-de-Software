@@ -21,14 +21,15 @@ CLAVE = "novakey"
 
 router = APIRouter(tags=["demo"])
 
-# Un usuario por rol (id de rol -> username).
-_USUARIOS_DEMO: dict[int, tuple[str, str]] = {
-    1: ("mquintero", "mquintero@novakey.example"),
-    2: ("ecampos", "ecampos@novakey.example"),
-    3: ("princon", "princon@novakey.example"),
-    4: ("jsalcedo", "jsalcedo@novakey.example"),
-    5: ("nmedina", "nmedina@novakey.example"),
-    6: ("slinares", "slinares@novakey.example"),
+# Un usuario por rol: id de rol -> (username, email, id de empleado asociado).
+# El empleado enlaza con RF05 para mostrar el nombre real en la sesión.
+_USUARIOS_DEMO: dict[int, tuple[str, str, int]] = {
+    1: ("mquintero", "mquintero@novakey.example", 1),
+    2: ("ecampos", "ecampos@novakey.example", 5),
+    3: ("princon", "princon@novakey.example", 3),
+    4: ("jsalcedo", "jsalcedo@novakey.example", 2),
+    5: ("nmedina", "nmedina@novakey.example", 8),
+    6: ("slinares", "slinares@novakey.example", 7),
 }
 
 
@@ -49,12 +50,20 @@ def _reiniciar(sesion: Session) -> None:
     # que IAM no necesita conocer esas tablas. Reinicia las identidades, como el proyecto original.
     sesion.execute(text("TRUNCATE usuario, usuario_rol RESTART IDENTITY CASCADE"))
     clave = hash_clave(CLAVE)
-    for rol_id, (username, email) in _USUARIOS_DEMO.items():
+    # Solo se enlaza el empleado si RF05 ya sembró sus empleados; si no, queda sin asociar.
+    hay_empleados = sesion.scalar(text("SELECT count(*) FROM empleado")) > 0
+    for rol_id, (username, email, empleado_id) in _USUARIOS_DEMO.items():
         rol = sesion.get(Rol, rol_id)
         if rol is None:
             continue
         sesion.add(
-            Usuario(username=username, email=email, password_hash=clave, roles=[rol])
+            Usuario(
+                username=username,
+                email=email,
+                password_hash=clave,
+                empleado_id=empleado_id if hay_empleados else None,
+                roles=[rol],
+            )
         )
     sesion.flush()
 
@@ -79,14 +88,15 @@ def accesos(sesion: Sesion) -> list[AccesoDemo]:
 
 @router.post("/demo/reiniciar", status_code=200)
 def reiniciar(sesion: Sesion) -> dict[str, str]:
-    # Reinicia todo el conjunto de demostración: usuarios y, a continuación, cada módulo.
-    # Igual que el único datos.sql del proyecto original, deja la base en su estado de ejemplo.
-    # El orden importa: inventario antes que compras/ventas (sus detalles referencian a material
-    # o producto). Ventas al final porque su movimiento de salida referencia a producto y usuario.
+    # Reinicia todo el conjunto de demostración, dejando la base en su estado de ejemplo
+    # (como el único datos.sql del proyecto original). El orden respeta las dependencias:
+    #   RH (empleados) -> IAM (usuarios que enlazan empleados) -> inventario -> compras -> ventas.
     from novakey.compras.demo import sembrar as sembrar_compras
     from novakey.inventario.demo import sembrar as sembrar_inventario
+    from novakey.rh.demo import sembrar as sembrar_rh
     from novakey.ventas.demo import sembrar as sembrar_ventas
 
+    sembrar_rh(sesion)
     _reiniciar(sesion)
     sembrar_inventario(sesion)
     sembrar_compras(sesion)

@@ -12,8 +12,8 @@ from novakey.comun.seguridad import emitir_token, hash_clave, verificar_clave
 from novakey.db import get_session
 from novakey.errores import NoAutorizado, NoEncontrado, ReglaNegocio
 from novakey.iam import esquemas as e
+from novakey.iam import puertos
 from novakey.iam.modelo import MODULOS, ROL_ADMIN_ID, Permiso, Rol, Usuario, niveles
-from novakey.iam.puertos import consulta_empleados
 from novakey.iam.seguridad import UsuarioActual, exige
 
 router = APIRouter(tags=["iam"])
@@ -27,7 +27,9 @@ _HASH_SEÑUELO = hash_clave("señuelo-para-igualar-tiempos")
 def _sesion_dto(sesion: Session, u: Usuario) -> e.Sesion:
     nombre = u.username
     if u.empleado_id is not None:
-        nombre = consulta_empleados.nombre_completo(sesion, u.empleado_id) or u.username
+        # Se accede por el módulo (no por un nombre importado) para ver la implementación que
+        # RF05 registra en tiempo de ejecución, no la implementación por defecto de importación.
+        nombre = puertos.consulta_empleados.nombre_completo(sesion, u.empleado_id) or u.username
 
     return e.Sesion(
         id=u.id,

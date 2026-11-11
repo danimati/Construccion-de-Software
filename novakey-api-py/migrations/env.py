@@ -11,6 +11,7 @@ from novakey.config import get_settings
 from novakey.db import Base
 from novakey.iam import modelo  # noqa: F401
 from novakey.inventario import modelo as _inv_modelo  # noqa: F401
+from novakey.rh import modelo as _rh_modelo  # noqa: F401
 from novakey.ventas import modelo as _ventas_modelo  # noqa: F401
 
 config = context.config

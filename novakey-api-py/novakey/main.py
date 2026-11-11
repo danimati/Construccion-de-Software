@@ -22,8 +22,11 @@ async def ciclo_vida(app: FastAPI):
             from novakey.compras.demo import sembrar_si_vacio as sembrar_compras
             from novakey.iam.demo import sembrar_si_vacio as sembrar_iam
             from novakey.inventario.demo import sembrar_si_vacio as sembrar_inventario
+            from novakey.rh.demo import sembrar_si_vacio as sembrar_rh
             from novakey.ventas.demo import sembrar_si_vacio as sembrar_ventas
 
+            # RH antes que IAM: los usuarios demo enlazan con empleados ya existentes.
+            sembrar_rh(sesion)
             sembrar_iam(sesion)
             sembrar_inventario(sesion)
             sembrar_compras(sesion)
@@ -67,6 +70,11 @@ def crear_app() -> FastAPI:
     from novakey.ventas.api import router as ventas_router
 
     app.include_router(ventas_router, prefix="/api")
+
+    # RF05 · Recursos Humanos
+    from novakey.rh.api import router as rh_router
+
+    app.include_router(rh_router, prefix="/api")
 
     # Router de demostración solo con el perfil demo.
     if settings.perfil == "demo":

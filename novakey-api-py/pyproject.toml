@@ -14,6 +14,7 @@ dependencies = [
     "pyjwt>=2.10",
     "pwdlib[argon2]>=0.2.1",
     "python-multipart>=0.0.12",
+    "python-dateutil>=2.9",
 ]
 
 [project.optional-dependencies]
@@ -42,3 +43,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Los módulos demo contienen tablas de datos de ejemplo; se permiten filas largas legibles.
+"novakey/*/demo.py" = ["E501"]
