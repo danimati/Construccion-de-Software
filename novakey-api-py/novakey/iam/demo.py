@@ -81,8 +81,11 @@ def accesos(sesion: Sesion) -> list[AccesoDemo]:
 def reiniciar(sesion: Sesion) -> dict[str, str]:
     # Reinicia todo el conjunto de demostración: usuarios y, a continuación, cada módulo.
     # Igual que el único datos.sql del proyecto original, deja la base en su estado de ejemplo.
+    # El orden importa: inventario antes que compras (sus detalles referencian a material).
+    from novakey.compras.demo import sembrar as sembrar_compras
     from novakey.inventario.demo import sembrar as sembrar_inventario
 
     _reiniciar(sesion)
     sembrar_inventario(sesion)
+    sembrar_compras(sesion)
     return {"estado": "reiniciado"}

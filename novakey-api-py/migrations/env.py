@@ -5,10 +5,10 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+# Importar aquí los modelos de cada módulo para que Alembic los vea en autogenerate.
+from novakey.compras import modelo as _compras_modelo  # noqa: F401
 from novakey.config import get_settings
 from novakey.db import Base
-
-# Importar aquí los modelos de cada módulo para que Alembic los vea en autogenerate.
 from novakey.iam import modelo  # noqa: F401
 from novakey.inventario import modelo as _inv_modelo  # noqa: F401
 
