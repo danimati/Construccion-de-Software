@@ -19,7 +19,11 @@ Esta carpeta reemplazará a `../novakey-erp` una vez completada la reescritura.
 | Pantalla de **Compras** (proveedores, órdenes, cuentas por pagar) | ✅ |
 | Pantalla de **Ventas** (cotizaciones, pedidos, facturas) | ✅ |
 | Pantalla de **Recursos Humanos** (empleados, nóminas) | ✅ |
-| Producción · Accesos | ⏳ pantallas por reconstruir |
+| Pantalla de **Producción** (órdenes, flujo de 6 estaciones, trazabilidad) | ✅ |
+| Pantalla de **Identidad y Accesos** (matriz de permisos, usuarios) | ✅ |
+
+Todas las pantallas de los módulos del ERP están reconstruidas en React, con paridad
+funcional y de diseño con el frontend Angular original.
 
 ## Ejecutar
 
@@ -38,8 +42,10 @@ npm run build      # genera dist/
 src/
   core/        api.js (cliente HTTP), sesion.jsx (auth + permisos), modulos.js, useRecurso.js
   shared/      ui.jsx (Logo, Estado, formateadores), avisos.jsx (toasts)
+  shared/      ui.jsx, avisos.jsx (toasts), Modal.jsx (diálogo nativo)
   layout/      Shell.jsx (barra lateral)
-  features/    Login, Panel, Inventario y pantallas por módulo
+  features/    Login, Panel, Inventario, Compras, Ventas, RecursosHumanos,
+               Produccion, Accesos
   styles.css   Sistema de diseño (reutilizado del frontend Angular)
 ```
 

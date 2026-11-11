@@ -8,7 +8,8 @@ import Inventario from './features/Inventario.jsx';
 import Compras from './features/Compras.jsx';
 import Ventas from './features/Ventas.jsx';
 import RecursosHumanos from './features/RecursosHumanos.jsx';
-import EnConstruccion from './features/EnConstruccion.jsx';
+import Produccion from './features/Produccion.jsx';
+import Accesos from './features/Accesos.jsx';
 
 // Protege las rutas internas: sin sesión, redirige al login.
 function Privado({ children }) {
@@ -41,10 +42,10 @@ export default function App() {
           <Route path="/panel" element={<Panel />} />
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/ventas" element={<Ventas />} />
-          <Route path="/produccion" element={<EnConstruccion titulo="Producción" />} />
+          <Route path="/produccion" element={<Produccion />} />
           <Route path="/compras" element={<Compras />} />
           <Route path="/recursos-humanos" element={<RecursosHumanos />} />
-          <Route path="/accesos" element={<EnConstruccion titulo="Identidad y Accesos" />} />
+          <Route path="/accesos" element={<Accesos />} />
         </Route>
         <Route path="*" element={<Navigate to="/panel" replace />} />
       </Routes>
