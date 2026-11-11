@@ -47,9 +47,8 @@ def sembrar_si_vacio(sesion: Session) -> None:
 
 def sembrar(sesion: Session) -> None:
     """Reinicia materiales, productos y listas a los datos de ejemplo."""
-    sesion.execute(text("DELETE FROM lista_materiales"))
-    sesion.execute(text("DELETE FROM material"))
-    sesion.execute(text("DELETE FROM producto"))
+    # CASCADE limpia lo que referencia a material/producto (órdenes, consumos, movimientos, etc.).
+    sesion.execute(text("TRUNCATE material, producto, lista_materiales RESTART IDENTITY CASCADE"))
 
     for mid, codigo, nombre, um, sa_, sm, costo in _MATERIALES:
         sesion.execute(

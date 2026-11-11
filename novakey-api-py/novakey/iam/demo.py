@@ -10,7 +10,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from novakey.comun.seguridad import hash_clave
@@ -44,7 +44,10 @@ def sembrar_si_vacio(sesion: Session) -> None:
 
 
 def _reiniciar(sesion: Session) -> None:
-    sesion.execute(Usuario.__table__.delete())
+    # TRUNCATE ... CASCADE sobre las tablas propias de IAM. CASCADE limpia de forma automática
+    # todo lo que referencia a usuario (usuario_rol, movimientos, órdenes de producción...), así
+    # que IAM no necesita conocer esas tablas. Reinicia las identidades, como el proyecto original.
+    sesion.execute(text("TRUNCATE usuario, usuario_rol RESTART IDENTITY CASCADE"))
     clave = hash_clave(CLAVE)
     for rol_id, (username, email) in _USUARIOS_DEMO.items():
         rol = sesion.get(Rol, rol_id)
@@ -76,5 +79,10 @@ def accesos(sesion: Sesion) -> list[AccesoDemo]:
 
 @router.post("/demo/reiniciar", status_code=200)
 def reiniciar(sesion: Sesion) -> dict[str, str]:
+    # Reinicia todo el conjunto de demostración: usuarios y, a continuación, cada módulo.
+    # Igual que el único datos.sql del proyecto original, deja la base en su estado de ejemplo.
+    from novakey.inventario.demo import sembrar as sembrar_inventario
+
     _reiniciar(sesion)
+    sembrar_inventario(sesion)
     return {"estado": "reiniciado"}

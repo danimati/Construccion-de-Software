@@ -4,7 +4,7 @@ name: CI
 # en cada push y pull request hacia las ramas principales.
 on:
   push:
-    branches: [main, develop, "feature/**"]
+    branches: [main, develop, "feature/**", "fix/**"]
   pull_request:
     branches: [main, develop]
 
