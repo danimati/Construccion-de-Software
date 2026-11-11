@@ -76,6 +76,11 @@ def crear_app() -> FastAPI:
 
     app.include_router(rh_router, prefix="/api")
 
+    # RF06 · Integración externa (tienda en línea)
+    from novakey.integracion.api import router as integracion_router
+
+    app.include_router(integracion_router, prefix="/api")
+
     # Router de demostración solo con el perfil demo.
     if settings.perfil == "demo":
         from novakey.iam.demo import router as demo_router
