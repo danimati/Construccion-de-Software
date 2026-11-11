@@ -5,6 +5,7 @@ import Shell from './layout/Shell.jsx';
 import Login from './features/Login.jsx';
 import Panel from './features/Panel.jsx';
 import Inventario from './features/Inventario.jsx';
+import Compras from './features/Compras.jsx';
 import EnConstruccion from './features/EnConstruccion.jsx';
 
 // Protege las rutas internas: sin sesión, redirige al login.
@@ -39,7 +40,7 @@ export default function App() {
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/ventas" element={<EnConstruccion titulo="Ventas (CRM)" />} />
           <Route path="/produccion" element={<EnConstruccion titulo="Producción" />} />
-          <Route path="/compras" element={<EnConstruccion titulo="Compras" />} />
+          <Route path="/compras" element={<Compras />} />
           <Route path="/recursos-humanos" element={<EnConstruccion titulo="Recursos Humanos" />} />
           <Route path="/accesos" element={<EnConstruccion titulo="Identidad y Accesos" />} />
         </Route>

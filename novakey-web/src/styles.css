@@ -85,6 +85,9 @@ th.der { text-align: right; }
   border-radius: 6px; background: var(--superficie); color: var(--texto); font: inherit; font-weight: 400;
 }
 
+.lista { list-style: none; margin: 0; padding: 0; }
+.lista li { padding: 9px 0; border-top: 1px solid var(--linea-suave); }
+
 /* Indicadores */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
 .kpi { display: flex; flex-direction: column; gap: 4px; color: var(--texto); background: var(--superficie); border: 1px solid var(--linea); border-radius: 8px; padding: 16px; text-decoration: none; }
