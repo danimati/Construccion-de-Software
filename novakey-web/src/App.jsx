@@ -7,6 +7,7 @@ import Panel from './features/Panel.jsx';
 import Inventario from './features/Inventario.jsx';
 import Compras from './features/Compras.jsx';
 import Ventas from './features/Ventas.jsx';
+import RecursosHumanos from './features/RecursosHumanos.jsx';
 import EnConstruccion from './features/EnConstruccion.jsx';
 
 // Protege las rutas internas: sin sesión, redirige al login.
@@ -42,7 +43,7 @@ export default function App() {
           <Route path="/ventas" element={<Ventas />} />
           <Route path="/produccion" element={<EnConstruccion titulo="Producción" />} />
           <Route path="/compras" element={<Compras />} />
-          <Route path="/recursos-humanos" element={<EnConstruccion titulo="Recursos Humanos" />} />
+          <Route path="/recursos-humanos" element={<RecursosHumanos />} />
           <Route path="/accesos" element={<EnConstruccion titulo="Identidad y Accesos" />} />
         </Route>
         <Route path="*" element={<Navigate to="/panel" replace />} />

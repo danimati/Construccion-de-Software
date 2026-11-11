@@ -19,7 +19,8 @@ que reemplazará al backend anterior en Spring Boot (`../novakey-api`) una vez c
 | **RF02 Inventario y Producción** (materiales, productos, listas, órdenes, movimientos) | ✅ |
 | **RF03 Compras** (proveedores, órdenes de compra, recepciones, cuentas por pagar) | ✅ |
 | **RF04 Ventas** (clientes, cotizaciones, pedidos, facturación con IVA) | ✅ |
-| RF05 RH · RF06 Integración | ⏳ pendiente |
+| **RF05 Recursos Humanos** (empleados, cargos, horarios, nóminas) | ✅ |
+| RF06 Integración | ⏳ pendiente |
 
 ### Módulo IAM (RF01)
 
