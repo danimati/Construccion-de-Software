@@ -15,7 +15,21 @@ que reemplazará al backend anterior en Spring Boot (`../novakey-api`) una vez c
 | SQLAlchemy (`Base`, sesión por petición transaccional) | ✅ |
 | Alembic (entorno de migraciones) | ✅ |
 | Seguridad base: PyJWT + Argon2 (`pwdlib`) | ✅ |
-| RF01 IAM · RF02 Inventario · RF03 Compras · RF04 Ventas · RF05 RH · RF06 Integración | ⏳ pendiente |
+| **RF01 IAM** (usuarios, roles, permisos, login JWT) | ✅ |
+| RF02 Inventario · RF03 Compras · RF04 Ventas · RF05 RH · RF06 Integración | ⏳ pendiente |
+
+### Módulo IAM (RF01)
+
+| Ruta bajo `/api` | Descripción | Permiso |
+|---|---|---|
+| `POST auth/login` | Inicia sesión y emite un JWT (HS256) | público |
+| `GET auth/me` | Sesión del usuario autenticado | token |
+| `GET usuarios` · `POST usuarios` | Lista y crea usuarios | `accesos:ver` / `accesos:editar` |
+| `PUT usuarios/{id}/rol` · `PUT usuarios/{id}/activo` | Cambia rol o estado | `accesos:editar` |
+| `GET roles` · `PUT roles/{id}/permisos/{modulo}` | Lista roles y fija permisos | `accesos:ver` / `accesos:editar` |
+
+Los permisos se leen de la base en cada petición: desactivar un usuario o cambiar un rol surte
+efecto de inmediato. Con el perfil `demo` existen `GET demo/accesos` y `POST demo/reiniciar`.
 
 ## Requisitos
 
