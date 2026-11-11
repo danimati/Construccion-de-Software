@@ -20,7 +20,21 @@ que reemplazará al backend anterior en Spring Boot (`../novakey-api`) una vez c
 | **RF03 Compras** (proveedores, órdenes de compra, recepciones, cuentas por pagar) | ✅ |
 | **RF04 Ventas** (clientes, cotizaciones, pedidos, facturación con IVA) | ✅ |
 | **RF05 Recursos Humanos** (empleados, cargos, horarios, nóminas) | ✅ |
-| RF06 Integración | ⏳ pendiente |
+| **RF06 Integración externa** (API de tienda: catálogo y pedidos por canal web) | ✅ |
+
+### Integración con la tienda (RF06)
+
+API pública para una tienda en línea, autenticada con clave de API (`X-API-Key`), independiente
+del JWT de usuarios. Reutiliza la lógica de Ventas, de modo que la disponibilidad y la integridad
+del stock son las mismas del canal interno.
+
+| Ruta bajo `/api` | Descripción |
+|---|---|
+| `GET tienda/catalogo` | Productos activos con precio y disponibilidad |
+| `POST tienda/pedidos` | Registra un pedido por el canal `web`; 409 si no hay stock |
+
+Los pedidos web se registran bajo un usuario de sistema `tienda` (inactivo, sin roles) para la
+trazabilidad de los movimientos. La clave se configura con `NOVAKEY_TIENDA_API_KEY`.
 
 ### Módulo IAM (RF01)
 

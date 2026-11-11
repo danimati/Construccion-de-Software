@@ -16,11 +16,11 @@ from novakey.iam.modelo import Usuario
 from novakey.iam.seguridad import exige
 from novakey.inventario import existencias as stock
 from novakey.ventas import esquemas as e
+from novakey.ventas import servicio
 from novakey.ventas.modelo import (
     Cliente,
     Cotizacion,
     DetalleCotizacion,
-    DetallePedido,
     EstadoCotizacion,
     EstadoFactura,
     EstadoPedido,
@@ -174,25 +174,12 @@ def _abrir_pedido(
     cotizacion_id: int | None,
     lineas: list[e.NuevaLinea],
 ) -> Pedido:
-    p = Pedido(
-        cliente_id=cliente_id,
-        cotizacion_id=cotizacion_id,
-        fecha=_ahora(),
-    )
-    for line in lineas:
-        p.detalles.append(
-            DetallePedido(
-                producto_id=line.producto_id,
-                cantidad=line.cantidad,
-                precio_unitario=line.precio_unitario,
-            )
-        )
-    sesion.add(p)
-    sesion.flush()
-    # Se descuenta por id de producto ascendente para bloquear siempre en el mismo orden.
-    for line in sorted(lineas, key=lambda x: x.producto_id):
-        stock.salida_venta(sesion, usuario_id, line.producto_id, line.cantidad, _doc(p.id))
-    return p
+    # Delega en el servicio compartido (mismas reglas que usa la integración con la tienda).
+    partes = [
+        servicio.LineaPedido(line.producto_id, line.cantidad, line.precio_unitario)
+        for line in lineas
+    ]
+    return servicio.abrir_pedido(sesion, usuario_id, cliente_id, cotizacion_id, partes)
 
 
 def _bloquear_pedido(sesion: Session, id: int) -> Pedido:
