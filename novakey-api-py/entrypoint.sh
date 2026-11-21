@@ -6,5 +6,8 @@ set -e
 echo "Aplicando migraciones (alembic upgrade head)..."
 alembic upgrade head
 
-echo "Iniciando Uvicorn en el puerto 8080..."
-exec uvicorn novakey.main:app --host 0.0.0.0 --port 8080
+# Varios procesos de Uvicorn reparten la carga entre los núcleos disponibles; el valor se ajusta
+# con NOVAKEY_WORKERS (la prueba de carga con k6 validó 8 workers para 100 usuarios en 8 núcleos).
+WORKERS="${NOVAKEY_WORKERS:-8}"
+echo "Iniciando Uvicorn en el puerto 8080 con ${WORKERS} workers..."
+exec uvicorn novakey.main:app --host 0.0.0.0 --port 8080 --workers "${WORKERS}" --proxy-headers

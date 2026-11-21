@@ -36,6 +36,10 @@ services:
       NOVAKEY_JWT_SECRETO: ${NOVAKEY_JWT_SECRETO:-secreto-solo-para-demostracion-no-usar-en-produccion}
       NOVAKEY_ADMIN_CLAVE: ${NOVAKEY_ADMIN_CLAVE:-}
       NOVAKEY_TIENDA_API_KEY: ${NOVAKEY_TIENDA_API_KEY:-clave-tienda-demo}
+      # Procesos de Uvicorn y pool de conexiones por proceso (ver pruebas/carga).
+      NOVAKEY_WORKERS: ${NOVAKEY_WORKERS:-8}
+      NOVAKEY_DB_POOL: ${NOVAKEY_DB_POOL:-5}
+      NOVAKEY_DB_OVERFLOW: ${NOVAKEY_DB_OVERFLOW:-5}
 
   web:
     build: ./novakey-web
