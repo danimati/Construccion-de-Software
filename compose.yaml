@@ -2,6 +2,10 @@
 #   db  -> PostgreSQL 16
 #   api -> FastAPI + Uvicorn (aplica las migraciones Alembic al arrancar)
 #   web -> React (Vite) servido por Nginx con HTTPS, que reenvía /api a la API
+#   backup -> pg_dump diario con retención (scripts en infra/respaldo)
+#
+# Staging: el mismo archivo con otro nombre de proyecto, puertos y carpeta de respaldos:
+#   docker compose -p novakey-staging --env-file entornos/staging.env up -d --build
 #
 # Por defecto arranca el perfil demo con datos ficticios y claves conocidas.
 # Para otro uso: definir NOVAKEY_PERFIL=prod y las claves NOVAKEY_DB_CLAVE,
@@ -16,7 +20,7 @@ services:
       POSTGRES_USER: novakey
       POSTGRES_PASSWORD: ${NOVAKEY_DB_CLAVE:-novakey}
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${NOVAKEY_DB_PUERTO:-5433}:5432"
     volumes:
       - datos:/var/lib/postgresql/data
     healthcheck:
@@ -24,6 +28,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
+    restart: unless-stopped
 
   api:
     build: ./novakey-api-py
@@ -40,6 +45,7 @@ services:
       NOVAKEY_WORKERS: ${NOVAKEY_WORKERS:-8}
       NOVAKEY_DB_POOL: ${NOVAKEY_DB_POOL:-5}
       NOVAKEY_DB_OVERFLOW: ${NOVAKEY_DB_OVERFLOW:-5}
+    restart: unless-stopped
 
   web:
     build: ./novakey-web
@@ -47,8 +53,31 @@ services:
       - api
     ports:
       # HTTP (redirige a HTTPS) y HTTPS.
-      - "127.0.0.1:8080:80"
-      - "127.0.0.1:8443:443"
+      - "127.0.0.1:${NOVAKEY_HTTP_PUERTO:-8080}:80"
+      - "127.0.0.1:${NOVAKEY_HTTPS_PUERTO:-8443}:443"
+    restart: unless-stopped
+
+  # Respaldo diario con pg_dump (02:00), retención de 14 días. Los archivos quedan en la
+  # carpeta del servidor indicada por NOVAKEY_DIR_RESPALDOS, fuera de los contenedores.
+  backup:
+    image: postgres:16-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["sh", "/scripts/programar.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: novakey
+      PGPASSWORD: ${NOVAKEY_DB_CLAVE:-novakey}
+      PGDATABASE: novakey
+      TZ: America/Bogota
+      HORA_RESPALDO: ${NOVAKEY_HORA_RESPALDO:-02:00}
+      RETENCION_DIAS: ${NOVAKEY_RETENCION_DIAS:-14}
+      RESPALDO_AL_INICIAR: ${NOVAKEY_RESPALDO_AL_INICIAR:-0}
+    volumes:
+      - ./infra/respaldo:/scripts:ro
+      - ${NOVAKEY_DIR_RESPALDOS:-./respaldos}:/respaldos
+    restart: unless-stopped
 
 volumes:
   datos:
