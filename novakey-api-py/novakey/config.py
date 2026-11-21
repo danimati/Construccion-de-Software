@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     # Conexión a PostgreSQL 16.
     db_url: str = "postgresql+psycopg://novakey:novakey@localhost:5433/novakey"
 
+    # Pool de conexiones por proceso de Uvicorn. Con NOVAKEY_WORKERS procesos, el total es
+    # workers * (db_pool + db_overflow); debe quedar por debajo de max_connections (100).
+    db_pool: int = 10
+    db_overflow: int = 10
+    db_pool_timeout: int = 10
+
     # Firma de tokens JWT. Mínimo 32 bytes; sin un valor seguro la API no debe usarse en producción.
     jwt_secreto: str = "secreto-solo-para-demostracion-no-usar-en-produccion"
     jwt_horas: int = 12
