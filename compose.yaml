@@ -31,6 +31,8 @@ services:
     restart: unless-stopped
 
   api:
+    # Local: se construye. Producción: imagen publicada en GHCR (NOVAKEY_REGISTRO y NOVAKEY_TAG).
+    image: ${NOVAKEY_REGISTRO:-novakey}/novakey-api:${NOVAKEY_TAG:-local}
     build: ./novakey-api-py
     depends_on:
       db:
@@ -48,6 +50,7 @@ services:
     restart: unless-stopped
 
   web:
+    image: ${NOVAKEY_REGISTRO:-novakey}/novakey-web:${NOVAKEY_TAG:-local}
     build: ./novakey-web
     depends_on:
       - api

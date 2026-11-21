@@ -1,0 +1,70 @@
+name: Desplegar
+
+# Despliegue a producción con aprobación manual: solo un integrante con permiso de escritura
+# puede ejecutarlo desde la pestaña Actions, indicando una versión ya publicada y verificada por
+# el workflow CD. Se conecta por SSH al servidor de NovaKey y ejecuta infra/desplegar.sh.
+#
+# Secretos del entorno "production": DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY y, opcional,
+# DEPLOY_DIR (por defecto /opt/novakey). El .env con las claves vive solo en el servidor.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión a desplegar (etiqueta vX.Y.Z publicada por CD)"
+        required: true
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: desplegar-produccion
+  cancel-in-progress: false
+
+jobs:
+  desplegar:
+    name: Desplegar ${{ inputs.version }} en producción
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_DIR: ${{ secrets.DEPLOY_DIR || '/opt/novakey' }}
+    steps:
+      - name: Validar la versión
+        shell: bash
+        run: |
+          [[ "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Versión inválida"; exit 1; }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+
+      - name: Comprobar el servidor configurado
+        shell: bash
+        run: |
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_USER" ]; then
+            echo "::error::Faltan los secretos DEPLOY_HOST / DEPLOY_USER / DEPLOY_SSH_KEY del entorno production."
+            exit 1
+          fi
+
+      - name: Preparar SSH
+        shell: bash
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Copiar compose y scripts
+        shell: bash
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_DIR'"
+          scp -r compose.yaml infra "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR/"
+
+      - name: Desplegar y prueba de humo
+        shell: bash
+        run: |
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_DIR' && NOVAKEY_REGISTRO=ghcr.io/$OWNER sh infra/desplegar.sh '${{ inputs.version }}'"
